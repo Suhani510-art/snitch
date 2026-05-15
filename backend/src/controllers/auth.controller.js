@@ -15,7 +15,7 @@ async function sendTokenResponse(user,res,message) {
         message,
         success:true,
         user:{
-            id:user,_id,
+            id:user._id,
             email:user.email,
             contact:user.contact,
             fullname:user.fullname,
@@ -61,4 +61,17 @@ export const register=async(req,res)=>{
         console.log(error)
         return res.status(500).json({message:"Server error"});
     }
+}
+export const login=async (req,res)=>{
+    const {email,password}=req.body;
+    const user=await userModel.findOne({email});
+    if (!user){
+        return res.status(400).json({message:"Invalid email or password"});
+    }
+    const isMatch=await user.comparePassword(password);
+
+    if(!isMatch){
+        return res.status(400).json({message:"Invalid email or password"})
+    }
+    await sendTokenResponse(user,res, "user logged in successfully")
 }
